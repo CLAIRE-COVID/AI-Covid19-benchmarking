@@ -1,13 +1,14 @@
 {
-  "name": "Resnet18-testing",
+  "name": "VGG16-testing",
   "n_gpu": 1,
 
   "arch": {
-    "type": "ResNetModel",
+    "type": "VGGModel",
     "args": {
-      "variant": 18,
+      "variant": 16,
       "num_classes" : 2,
-      "print_model": true
+      "print_model": true,
+      "bn": true
     }
   },
 
@@ -50,6 +51,6 @@
     "verbosity": 2,
     "monitor": "min val_loss",
     "early_stop": 10,
-    "tensorboard": true
+    "tensorboard": false
   }
 }

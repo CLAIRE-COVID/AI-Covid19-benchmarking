@@ -1,11 +1,11 @@
 {
-  "name": "Resnet18-testing",
+  "name": "Resnet50-testing",
   "n_gpu": 1,
 
   "arch": {
     "type": "ResNetModel",
     "args": {
-      "variant": 18,
+      "variant": 50,
       "num_classes" : 2,
       "print_model": true
     }

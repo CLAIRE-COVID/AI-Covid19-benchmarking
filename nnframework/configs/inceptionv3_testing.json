@@ -1,11 +1,11 @@
 {
-  "name": "Resnet18-testing",
+  "name": "InceptionV3-testing",
   "n_gpu": 1,
 
   "arch": {
-    "type": "ResNetModel",
+    "type": "InceptionModel",
     "args": {
-      "variant": 18,
+      "variant": 3,
       "num_classes" : 2,
       "print_model": true
     }
@@ -19,7 +19,7 @@
     "args": {
       "data_dir": "../testdb",
       "batch_size": 2,
-      "input_size": 224,
+      "input_size": 299,
       "shuffle": true,
       "validation_split": 0.25,
       "num_workers": 2

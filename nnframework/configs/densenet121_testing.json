@@ -1,11 +1,11 @@
 {
-  "name": "Resnet18-testing",
+  "name": "DenseNet121-testing",
   "n_gpu": 1,
 
   "arch": {
-    "type": "ResNetModel",
+    "type": "DenseNetModel",
     "args": {
-      "variant": 18,
+      "variant": 121,
       "num_classes" : 2,
       "print_model": true
     }
