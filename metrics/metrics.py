@@ -1,6 +1,8 @@
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import f1_score
-from sklearn.metrics import log_loss
+from sklearn.metrics import (accuracy_score,
+                             f1_score,
+                             log_loss,
+                             precision_score,
+                             recall_score)
 
 from prg import prg
 
