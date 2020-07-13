@@ -47,8 +47,6 @@ class COVID_Split(Dataset):
 
 class COVID_Dataset():
     
-    
-    
     def addFiles(self,subj,mode,split,files_old,labels,sublabels,root):       
         
         if mode == 'ct':
@@ -109,7 +107,7 @@ class COVID_Dataset():
         #root: the path to the generated dataset 
         #pos_neg_file: the absolute path to the file labels_covid19_posi.tsv
     
-    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], transform = None, pos_neg_file = None):
+    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], transform = None, pos_neg_file = None, random_seed = None):
         
         self.ground_glass = "C3544344"
         self.consolidation = "C0521530"
@@ -117,8 +115,13 @@ class COVID_Dataset():
         
         self.has_val = (len(splits) == 3 and splits[1] != 0)
         self.subjects = os.listdir(root)
-        random.shuffle(self.subjects)
         
+        if random_seed == None:
+            random.shuffle(self.subjects)
+        else:
+            random.seed(random_seed)
+            random.shuffle(self.subjects)
+            
         self.labels = {}
         
         with open(pos_neg_file) as pos_neg_file:
