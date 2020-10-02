@@ -25,7 +25,6 @@ def main(config):
     logger = config.get_logger('train')
 
     data_loader = config.init_obj('data_loader', module_dataloader)
-    valid_data_loader = data_loader.split_validation()
 
     model = config.init_obj('arch', module_model)
     logger.info(model)
@@ -40,8 +39,9 @@ def main(config):
 
     trainer = Trainer(model.get_model(), criterion, metrics, optimizer,
                       config=config,
-                      data_loader=data_loader,
-                      valid_data_loader=valid_data_loader,
+                      train_data_loader=data_loader.train,
+                      valid_data_loader=data_loader.val,
+                      test_data_loader=data_loader.test,
                       lr_scheduler=lr_scheduler)
 
     trainer.train()
