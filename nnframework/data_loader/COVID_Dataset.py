@@ -33,6 +33,15 @@ class COVID_Split(Dataset):
         self.random_rotations = random_rotations
         self.replicate_channel = replicate_channel
         
+        self.subject_ids = []
+        self.slice_ids = []
+        self.ct_ids = []
+        for f in files:
+            parts = os.path.basename(f).split('_')
+            self.subject_ids.append(parts[0])
+            self.ct_ids.append(parts[1]) 
+            self.slice_ids.append(int(parts[-1].split('.')[0]))
+     
         if transform == None:
             self.transform = transforms.ToTensor()
         else:    
@@ -68,7 +77,7 @@ class COVID_Split(Dataset):
         
         if torch.isnan(img).any():
             print("NAN")
-        return img, label, sublabel
+        return img, label, sublabel, self.subject_ids[idx], self.ct_ids[idx], self.slice_ids[idx]
     
 
 class COVID_Dataset():
@@ -218,7 +227,7 @@ class COVID_Dataset():
         self.train = COVID_Split(self.train_files,self.train_labels,self.train_sublabels,train_transform,replicate_channel=self.replicate_channel)
         self.val = COVID_Split(self.val_files,self.val_labels,self.val_sublabels,test_transform, replicate_channel=self.replicate_channel)
         self.test = COVID_Split(self.test_files,self.test_labels,self.test_sublabels,test_transform, replicate_channel=self.replicate_channel)         
-
+        
         # Loader instances
         self.train = DataLoader(self.train, batch_size=batch_size, num_workers=num_workers)
         self.val = DataLoader(self.val, batch_size=batch_size, num_workers=num_workers)
