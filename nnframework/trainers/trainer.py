@@ -6,6 +6,7 @@ import torch
 from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
+from metrics.results import Results as TestResults
 
 
 class Trainer(BaseTrainer):
@@ -44,7 +45,7 @@ class Trainer(BaseTrainer):
         """
         self.model.train()
         self.train_metrics.reset()
-        for batch_idx, (data, target, _) in enumerate(self.train_data_loader):
+        for batch_idx, (data, target, _, subject_ids, ct_ids, slice_ids) in enumerate(self.train_data_loader):
             data, target = data.to(self.device), target.to(self.device)
 
             self.optimizer.zero_grad()
@@ -67,6 +68,7 @@ class Trainer(BaseTrainer):
 
             if batch_idx == self.len_epoch:
                 break
+            break # FIXME
         log = self.train_metrics.result()
 
         if self.do_validation:
@@ -74,12 +76,15 @@ class Trainer(BaseTrainer):
             log.update(**{'val_'+k : v for k, v in val_log.items()})
         
         if self.do_test:
-            test_log = self._test_epoch(epoch)
+            test_log, test_results = self._test_epoch(epoch)
             log.update(**{'test_'+k : v for k, v in test_log.items()})
 
         if self.lr_scheduler is not None:
             self.lr_scheduler.step()
-        return log
+        if self.do_test:
+            return log, test_results
+        else:
+            return log
 
     def _valid_epoch(self, epoch):
         """
@@ -91,7 +96,7 @@ class Trainer(BaseTrainer):
         self.model.eval()
         self.valid_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target, _) in enumerate(self.valid_data_loader):
+            for batch_idx, (data, target, _, subject_ids, ct_ids, slice_ids) in enumerate(self.valid_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)
@@ -115,10 +120,12 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains information about test
         """
+        test_results_path = self.config.save_dir / 'test_predictions'
+        test_results = TestResults(test_results_path)
         self.model.eval()
         self.test_metrics.reset()
         with torch.no_grad():
-            for batch_idx, (data, target, _) in enumerate(self.test_data_loader):
+            for batch_idx, (data, target, _, subject_ids, ct_ids, slice_ids) in enumerate(self.test_data_loader):
                 data, target = data.to(self.device), target.to(self.device)
 
                 output = self.model(data)
@@ -129,12 +136,16 @@ class Trainer(BaseTrainer):
                 for met in self.metric_ftns:
                     self.test_metrics.update(met.__name__, met(output, target))
                 self.writer.add_image('input', make_grid(data.cpu(), nrow=8, normalize=True))
-                
+
+                # Add to test results for final evaluation
+                for i in range(data.shape[0]):
+                    # TODO check model output (scalar or vector)
+                    test_results.add(output[i,-1].item(), target[i].item(), subject_ids[i], ct_ids[i], slice_ids[i].item())
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
             self.writer.add_histogram(name, p, bins='auto')
-        return self.test_metrics.result()
+        return self.test_metrics.result(), test_results
 
     def _progress(self, loader, batch_idx):
         base = '[{}/{} ({:.0f}%)]'

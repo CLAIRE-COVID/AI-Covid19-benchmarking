@@ -1,0 +1,6 @@
+*.pyc
+saved
+cifar-10-batches-py
+exps
+.vscode
+.ipynb_checkpoints

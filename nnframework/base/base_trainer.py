@@ -67,6 +67,10 @@ class BaseTrainer:
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
+            if isinstance(result, tuple):
+                result, test_results = result
+            else:
+                test_results = None
 
             # save logged informations into log dict
             log = {'epoch': epoch}
@@ -93,6 +97,10 @@ class BaseTrainer:
                     self.mnt_best = log[self.mnt_metric]
                     not_improved_count = 0
                     best = True
+                    # Write test results
+                    if test_results is not None:
+                        print('New best results, writing')
+                        test_results.save(overwrite=True)
                 else:
                     not_improved_count += 1
 
