@@ -68,7 +68,6 @@ class Trainer(BaseTrainer):
 
             if batch_idx == self.len_epoch:
                 break
-            break # FIXME
         log = self.train_metrics.result()
 
         if self.do_validation:
