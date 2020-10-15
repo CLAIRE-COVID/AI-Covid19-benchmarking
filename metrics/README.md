@@ -23,3 +23,20 @@ pip install -r requirements.txt
 
 The current code uses docstrings that can be used as a test by just running the
 code `python metrics.py`
+
+## Code overview
+
+The file metrics.py contains all the functions that compute scores given a
+target and the output probabilities of a binary classification model.
+
+The file results.py collects the outputs of a classifier together with the
+targets and computes and exports all the results into the indicated folder.
+
+A simple example of results can be run with
+
+```
+python results.py
+```
+
+which will generate a folder called results containing several csv files, one
+per metric, and one for the model outputs and information about each sample.
