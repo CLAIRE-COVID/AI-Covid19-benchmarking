@@ -67,6 +67,10 @@ class BaseTrainer:
         not_improved_count = 0
         for epoch in range(self.start_epoch, self.epochs + 1):
             result = self._train_epoch(epoch)
+            if isinstance(result, tuple):
+                result, test_results = result
+            else:
+                test_results = None
 
             # save logged informations into log dict
             log = {'epoch': epoch}
@@ -93,6 +97,10 @@ class BaseTrainer:
                     self.mnt_best = log[self.mnt_metric]
                     not_improved_count = 0
                     best = True
+                    # Write test results
+                    if test_results is not None:
+                        print('New best results, writing')
+                        test_results.save(overwrite=True)
                 else:
                     not_improved_count += 1
 
@@ -155,20 +163,24 @@ class BaseTrainer:
         resume_path = str(resume_path)
         self.logger.info("Loading checkpoint: {} ...".format(resume_path))
         checkpoint = torch.load(resume_path)
-        self.start_epoch = checkpoint['epoch'] + 1
-        self.mnt_best = checkpoint['monitor_best']
+        #self.start_epoch = checkpoint['epoch'] + 1
+        #self.mnt_best = checkpoint['monitor_best']
 
         # load architecture params from checkpoint.
-        if checkpoint['config']['arch'] != self.config['arch']:
-            self.logger.warning("Warning: Architecture configuration given in config file is different from that of "
-                                "checkpoint. This may yield an exception while state_dict is being loaded.")
-        self.model.load_state_dict(checkpoint['state_dict'])
+        #if checkpoint['config']['arch'] != self.config['arch']:
+        #    self.logger.warning("Warning: Architecture configuration given in config file is different from that of "
+        #                        "checkpoint. This may yield an exception while state_dict is being loaded.")
+        try:
+            self.model.load_state_dict(checkpoint['state_dict'])
+        except:
+            print('Got exception while resuming. This may be fine, because the final layers don\'t match.')
+            pass
 
         # load optimizer state from checkpoint only when optimizer type is not changed.
-        if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
-            self.logger.warning("Warning: Optimizer type given in config file is different from that of checkpoint. "
-                                "Optimizer parameters not being resumed.")
-        else:
-            self.optimizer.load_state_dict(checkpoint['optimizer'])
+        #if checkpoint['config']['optimizer']['type'] != self.config['optimizer']['type']:
+        #    self.logger.warning("Warning: Optimizer type given in config file is different from that of checkpoint. "
+        #                        "Optimizer parameters not being resumed.")
+        #else:
+        #    self.optimizer.load_state_dict(checkpoint['optimizer'])
 
-        self.logger.info("Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch))
+        #self.logger.info("Checkpoint loaded. Resume training from epoch {}".format(self.start_epoch))
