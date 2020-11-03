@@ -2,7 +2,8 @@ import os
 import shutil
 import csv
 from metrics import (accuracy, f1, log_loss, precision,
-                     recall, auprgc_score, roc_auc_score)
+                     recall, auprgc_score, roc_auc_score,
+                     sensitivity, specificity, odds_ratio)
 import numpy as np
 
 METRICS_MAP = {'accuracy': accuracy,
@@ -12,7 +13,9 @@ METRICS_MAP = {'accuracy': accuracy,
                'recall': recall,
                'auc': roc_auc_score,
                'auprgc': auprgc_score,
-               # TODO Add 'odds_ratio': odds_ratio_score
+               'sensitivity': sensitivity,
+               'specificity': specificity,
+               'odds_ratio': odds_ratio
               }
 
 class Results(object):

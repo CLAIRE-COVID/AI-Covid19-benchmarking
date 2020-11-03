@@ -1,18 +1,45 @@
+import numpy as np
 from sklearn.metrics import (accuracy_score,
                              f1_score,
                              log_loss,
                              precision_score,
                              recall_score,
-                             roc_auc_score)
-
+                             roc_auc_score,
+                             confusion_matrix)
 from prg import prg
 
-# TODO Add the following metrics
-# - Sensitivity
-# - Specificity
-# - Accuracy
-# - AUC of TPR (sensitivity) vs FPR (1-specificity)
-# - Diagnostic Odds Ratio
+def odds_ratio(y_true, scores, threshold=0.5):
+    y_pred = scores > threshold
+    cm = confusion_matrix(y_true, y_pred)
+    numerator = cm[0,0]*cm[1,1]
+    denominator = cm[0,1]*cm[1,0]
+    if denominator == 0:
+        return np.inf
+    return numerator/denominator
+
+def specificity(y_true, scores, threshold=0.5):
+    '''
+    y_true: binary vector
+        0: negative class
+        1: positive class
+    returns:
+        true negatives divided by all negatives
+    '''
+    y_pred = scores > threshold
+    cm = confusion_matrix(y_true, y_pred)
+    return cm[0,0]/(cm[0,0] + cm[0,1])
+
+def sensitivity(y_true, scores, threshold=0.5):
+    '''
+    y_true: binary vector
+        0: negative class
+        1: positive class
+    returns:
+        true positives divided by all positives
+    '''
+    y_pred = scores > threshold
+    cm = confusion_matrix(y_true, y_pred)
+    return cm[1,1]/(cm[1,0] + cm[1,1])
 
 def accuracy(y_true, scores, threshold=0.5):
     y_pred = scores > threshold
