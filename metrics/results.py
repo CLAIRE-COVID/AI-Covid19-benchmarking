@@ -70,7 +70,6 @@ class Results(object):
                 self.scores[metric_name] = metric_func(target, outputs)
             except ValueError as e:
                 print(e)
-                from IPython import embed; embed()
 
     def _save_metrics(self):
         for metric_name, score in self.scores.items():
