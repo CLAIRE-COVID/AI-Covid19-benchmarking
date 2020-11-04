@@ -14,6 +14,8 @@ from prg import prg
 
 def odds_ratio(y_true, scores, threshold=0.5):
     '''
+    With Haldane-Anscombe correction
+
     y_true: binary vector
         0: negative class
         1: positive class
@@ -28,33 +30,29 @@ def odds_ratio(y_true, scores, threshold=0.5):
     >>> y_true = np.array([1, 1, 1, 1, 0, 1, 0, 1, 0, 0], dtype='int')
     >>> scores = np.array([1, 1, 1, 1, 0, 1, 0, 1, 0, 0], dtype='int')
     >>> odds_ratio(y_true, scores)
-    inf
+    117.0
     >>> y_true = np.array([1, 1, 0, 0], dtype='int')
     >>> scores = np.array([1, 1, 1, 1], dtype='int')
     >>> odds_ratio(y_true, scores)
-    0.0
+    1.0
     >>> y_true = np.array([1, 1, 0, 0], dtype='int')
     >>> scores = np.array([0, 0, 0, 0], dtype='int')
     >>> odds_ratio(y_true, scores)
-    0.0
+    1.0
     >>> y_true = np.array([1, 1, 0, 0], dtype='int')
     >>> scores = np.array([0, 0, 1, 0], dtype='int')
     >>> odds_ratio(y_true, scores)
-    0.0
+    0.2
     >>> y_true = np.array([1, 1, 0, 0], dtype='int')
     >>> scores = np.array([0, 0, 1, 1], dtype='int')
     >>> odds_ratio(y_true, scores)
-    0.0
+    0.04
     '''
     y_pred = scores > threshold
     cm = confusion_matrix(y_true, y_pred)
+    cm = cm + 0.5
     numerator = cm[0,0]*cm[1,1]
     denominator = cm[0,1]*cm[1,0]
-    if denominator == 0:
-        if numerator > 0:
-            return np.inf
-        else:
-            return 0.0
     return numerator/denominator
 
 def specificity(y_true, scores, threshold=0.5):
