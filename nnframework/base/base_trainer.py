@@ -93,7 +93,7 @@ class BaseTrainer:
                     self.mnt_mode = 'off'
                     improved = False
 
-                if improved:
+                if improved or epoch == 1:
                     self.mnt_best = log[self.mnt_metric]
                     not_improved_count = 0
                     best = True

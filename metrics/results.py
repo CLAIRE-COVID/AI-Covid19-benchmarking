@@ -1,7 +1,7 @@
 import os
 import shutil
 import csv
-from metrics import (accuracy, f1, log_loss, precision,
+from metrics.metrics import (accuracy, f1, log_loss, precision,
                      recall, auprgc_score, roc_auc_score,
                      sensitivity, specificity, odds_ratio)
 import numpy as np

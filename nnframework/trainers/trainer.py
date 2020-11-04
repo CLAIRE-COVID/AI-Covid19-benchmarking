@@ -3,6 +3,7 @@ __email__ = "liviu_daniel.stefan@upb.ro, cmihaigabriel@gmail.com"
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torchvision.utils import make_grid
 from base import BaseTrainer
 from utils import inf_loop, MetricTracker
@@ -139,7 +140,7 @@ class Trainer(BaseTrainer):
                 # Add to test results for final evaluation
                 for i in range(data.shape[0]):
                     # TODO check model output (scalar or vector)
-                    test_results.add(output[i,-1].item(), target[i].item(), subject_ids[i], ct_ids[i], slice_ids[i].item())
+                    test_results.add(F.softmax(output[i], dim=0)[-1].item(), target[i].item(), subject_ids[i], ct_ids[i], slice_ids[i].item())
 
         # add histogram of model parameters to the tensorboard
         for name, p in self.model.named_parameters():
