@@ -24,31 +24,31 @@ class ResNetModel(BaseModel):
         self.num_classes = num_classes
 
         if self.variant == 18:
-            self.model = models.resnet18(pretrained=True)
+            self.model = models.resnet18(pretrained=False)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 34:
-            self.model = models.resnet34(pretrained=True)
+            self.model = models.resnet34(pretrained=False)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 50:
-            self.model = models.resnet50(pretrained=True)
+            self.model = models.resnet50(pretrained=False)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 101:
-            self.model = models.resnet101(pretrained=True)
+            self.model = models.resnet101(pretrained=False)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 152:
-            self.model = models.resnet152(pretrained=True)
+            self.model = models.resnet152(pretrained=False)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224

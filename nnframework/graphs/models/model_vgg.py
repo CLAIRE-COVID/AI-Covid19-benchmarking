@@ -25,36 +25,36 @@ class VGGModel(BaseModel):
 
         if variant == 11:
             if self.bn:
-                self.model = models.vgg11_bn(pretrained=True)
+                self.model = models.vgg11_bn(pretrained=False)
             else:
-                self.model = models.vgg11(pretrained=True)
+                self.model = models.vgg11(pretrained=False)
             num_filters = self.model.classifier[-1].in_features
             self.model.classifier[-1] = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if variant == 13:
             if self.bn:
-                self.model = models.vgg13_bn(pretrained=True)
+                self.model = models.vgg13_bn(pretrained=False)
             else:
-                self.model = models.vgg13(pretrained=True)
+                self.model = models.vgg13(pretrained=False)
             num_filters = self.model.classifier[-1].in_features
             self.model.classifier[-1] = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if variant == 16:
             if self.bn:
-                self.model = models.vgg16_bn(pretrained=True)
+                self.model = models.vgg16_bn(pretrained=False)
             else:
-                self.model = models.vgg16(pretrained=True)
+                self.model = models.vgg16(pretrained=False)
             num_filters = self.model.classifier[-1].in_features
             self.model.classifier[-1] = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if variant == 19:
             if self.bn:
-                self.model = models.vgg19_bn(pretrained=True)
+                self.model = models.vgg19_bn(pretrained=False)
             else:
-                self.model = models.vgg19(pretrained=True)
+                self.model = models.vgg19(pretrained=False)
             num_filters = self.model.classifier[-1].in_features
             self.model.classifier[-1] = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224

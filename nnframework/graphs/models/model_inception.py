@@ -23,7 +23,7 @@ class InceptionModel(BaseModel):
         self.num_classes = num_classes
 
         if self.variant == 3:
-            self.model = models.inception_v3(pretrained=True)
+            self.model = models.inception_v3(pretrained=False)
             num_filters = self.model.fc.in_features
             self.model.aux_logits = False
             self.model.fc = nn.Linear(num_filters, self.num_classes)

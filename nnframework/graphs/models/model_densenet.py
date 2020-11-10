@@ -23,25 +23,25 @@ class DenseNetModel(BaseModel):
         self.num_classes = num_classes
 
         if self.variant == 121:
-            self.model = models.densenet121(pretrained=True)
+            self.model = models.densenet121(pretrained=False)
             num_filters = self.model.classifier.in_features
             self.model.classifier = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 161:
-            self.model = models.densenet161(pretrained=True)
+            self.model = models.densenet161(pretrained=False)
             num_filters = self.model.classifier.in_features
             self.model.classifier = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 169:
-            self.model = models.densenet169(pretrained=True)
+            self.model = models.densenet169(pretrained=False)
             num_filters = self.model.classifier.in_features
             self.model.classifier = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if self.variant == 201:
-            self.model = models.densenet201(pretrained=True)
+            self.model = models.densenet201(pretrained=False)
             num_filters = self.model.classifier.in_features
             self.model.classifier = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
