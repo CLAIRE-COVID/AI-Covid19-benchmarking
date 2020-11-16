@@ -1,0 +1,15 @@
+  dataset:
+    class: Folder
+    path: /m100_work/ABD20_aldinucc/datasets/claire-covid/BIMCV_COVID19_CT_preproc/
+  epochs: 50
+  image:
+    class: File
+    path: /m100_work/ABD20_aldinucc/singularity/claire-covid/claire-covid.sif
+  labels:
+    class: File
+    path: /m100_work/ABD20_aldinucc/datasets/claire-covid/labels_covid19_posi.tsv
+  learning_rate: [0.001, 0.0001, 0.00001]
+  lr_step_size: [10, 15]
+  model_type: DenseNetModel
+  model_layers: [121, 161, 169, 201]
+  weight_decay: [0.0005, 0.00005]
