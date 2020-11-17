@@ -4,7 +4,6 @@ __email__ = "liviu_daniel.stefan@upb.ro, cmihaigabriel@gmail.com"
 import argparse
 import collections
 import torch
-import torch.hub
 import numpy as np
 from parse_config import ConfigParser
 import data_loader as module_dataloader
@@ -27,7 +26,6 @@ def main(config):
 
     data_loader = config.init_obj('data_loader', module_dataloader)
 
-    torch.hub.set_dir(config['weights_path'])
     model = config.init_obj('arch', module_model)
     logger.info(model)
 

@@ -1,11 +1,13 @@
 {
   "name": "covid-training",
   "n_gpu": 1,
+  "weights_path": "./weights",
+  "log_config": "./my_logger_config.json",
 
   "arch": {
-    "type": "DenseNetModel",
+    "type": "ResNeXtModel",
     "args": {
-      "variant": 121,
+      "variant": 101,
       "num_classes" : 2,
       "print_model": true
     }
