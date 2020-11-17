@@ -1,10 +1,14 @@
 import os
 import shutil
 import csv
-from metrics.metrics import (accuracy, f1, log_loss, precision,
+from metrics import (accuracy, f1, log_loss, precision,
                      recall, auprgc_score, roc_auc_score,
                      sensitivity, specificity, odds_ratio)
 import numpy as np
+import pandas as pd
+import inspect
+
+COLUMN_NAMES = ['output', 'target', 'subj_id', 'ct_id', 'slice_id']
 
 METRICS_MAP = {'accuracy': accuracy,
                'f1': f1,
@@ -26,6 +30,7 @@ class Results(object):
     def __init__(self, path='results'):
         self.path = path
         self.results = []
+        self.results_per_scan = {}
 
     def add(self, output, target, subj_id, ct_id, slice_id):
         '''
@@ -48,6 +53,8 @@ class Results(object):
     def save(self, overwrite=False):
         if overwrite and os.path.exists(self.path):
             shutil.rmtree(self.path)
+        elif not overwrite and os.path.exists(self.path):
+            raise ValueError('Can not save: The path already exists and overwrite=False')
 
         if not os.path.exists(self.path):
             os.makedirs(self.path)
@@ -72,16 +79,75 @@ class Results(object):
                 print(e)
 
     def _save_metrics(self):
-        for metric_name, score in self.scores.items():
-            with open(os.path.join(self.path, '{}.csv'.format(metric_name)), 'a') as csvfile:
+        with open(os.path.join(self.path, 'metrics_per_slice.csv'), 'a') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',', quotechar='|',
+                                quoting=csv.QUOTE_NONNUMERIC)
+            writer.writerow(['metric', 'threshold', 'score'])
+            for metric_name, score in self.scores.items():
+                writer.writerow([metric_name, 0.5, score])
+
+        for threshold, results_per_scan in self.results_per_scan.items():
+            filename = 'metrics_per_scan_threshold_{:03.0f}.csv'.format(
+                threshold*100)
+            with open(os.path.join(self.path, filename), 'a') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                     quoting=csv.QUOTE_NONNUMERIC)
-                writer.writerow([score])
+                writer.writerow(['metric', 'threshold', 'score'])
+                for metric, score in results_per_scan.items():
+                    writer.writerow([metric, threshold, score])
+
+
+    def load(self):
+        if not os.path.exists(self.path):
+            raise ValueError("Location {} doesn't contain results".format(self.path))
+
+        with open(os.path.join(self.path, 'predictions.csv'), 'r') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',', quotechar='|',
+                                quoting=csv.QUOTE_NONNUMERIC)
+            for row in reader:
+                self.results.append(row)
+
+    def compute_metrics_per_scan(self, threshold=0.5):
+        '''
+        Computes all metrics considering each ct-scan as an instance
+
+        threshold: float or None
+            None: Majority voting using each slice
+            Float: Proportion of slices that need to be positive to have the
+            ct-scan predicted as positive
+        '''
+        df = pd.DataFrame(self.results, columns=COLUMN_NAMES)
+        df = df.pivot_table(index=['subj_id', 'ct_id'],
+                            values=['output', 'target'],
+                            aggfunc='mean')
+        outputs = df['output']
+        target = df['target']
+        self.results_per_scan[threshold] = {}
+        for metric_name, metric_func in METRICS_MAP.items():
+            try:
+                if 'threshold' in inspect.getfullargspec(metric_func)[0]:
+                    score = metric_func(target, outputs, threshold=threshold)
+                else:
+                    score = metric_func(target, outputs)
+            except ValueError as e:
+                print(e)
+            self.results_per_scan[threshold][metric_name] = score
 
 
 if __name__ == '__main__':
     res = Results(path='results')
     res.add(.9, 1, 'John', 1, 23)
-    res.add(.3, 0, 'John', 2, 23)
+    res.add(.3, 1, 'John', 2, 23)
     res.add(.4, 1, 'John', 2, 24)
+    res.add(.1, 0, 'Alice', 1, 1)
+    res.add(.2, 0, 'Alice', 1, 2)
+    res.add(.5, 1, 'Alice', 2, 1)
+    res.add(.6, 1, 'Alice', 2, 2)
+    res.save(overwrite=True)
+
+    res = Results(path='results')
+    res.load()
+    res.compute_metrics_per_scan(threshold=0.5)
+    res.compute_metrics_per_scan(threshold=0.7)
+    res.compute_metrics_per_scan(threshold=0.9)
     res.save(overwrite=True)
