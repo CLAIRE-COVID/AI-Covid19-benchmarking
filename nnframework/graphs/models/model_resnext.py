@@ -23,13 +23,13 @@ class ResNeXtModel(BaseModel):
         self.num_classes = num_classes
 
         if variant == 50:
-            self.model = models.resnext50_32x4d(pretrained=False)
+            self.model = models.resnext50_32x4d(pretrained=True)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224
 
         if variant == 101:
-            self.model = models.resnext101_32x8d(pretrained=False)
+            self.model = models.resnext101_32x8d(pretrained=True)
             num_filters = self.model.fc.in_features
             self.model.fc = nn.Linear(num_filters, self.num_classes)
             self.input_size = 224

@@ -142,7 +142,7 @@ class COVID_Dataset():
         #root: the path to the generated dataset 
         #pos_neg_file: the absolute path to the file labels_covid19_posi.tsv
     
-    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None):
+    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False):
         
         self.ground_glass = "C3544344"
         self.consolidation = "C0521530"
@@ -224,9 +224,9 @@ class COVID_Dataset():
         ])
         
         # Dataset instances
-        self.train = COVID_Split(self.train_files,self.train_labels,self.train_sublabels,train_transform,replicate_channel=self.replicate_channel)
-        self.val = COVID_Split(self.val_files,self.val_labels,self.val_sublabels,test_transform, replicate_channel=self.replicate_channel)
-        self.test = COVID_Split(self.test_files,self.test_labels,self.test_sublabels,test_transform, replicate_channel=self.replicate_channel)         
+        self.train = COVID_Split(self.train_files,self.train_labels,self.train_sublabels,train_transform,replicate_channel=self.replicate_channel, self_supervised=self_supervised)
+        self.val = COVID_Split(self.val_files,self.val_labels,self.val_sublabels,test_transform, replicate_channel=self.replicate_channel, self_supervised=self_supervised)
+        self.test = COVID_Split(self.test_files,self.test_labels,self.test_sublabels,test_transform, replicate_channel=self.replicate_channel, self_supervised=self_supervised)         
         
         # Loader instances
         self.train = DataLoader(self.train, batch_size=batch_size, num_workers=num_workers)
