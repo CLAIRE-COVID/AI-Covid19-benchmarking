@@ -31,6 +31,7 @@ class Results(object):
         self.path = path
         self.results = []
         self.results_per_scan = {}
+        self.results_per_scan_proportion = {}
 
     def add(self, output, target, subj_id, ct_id, slice_id):
         '''
@@ -86,6 +87,8 @@ class Results(object):
             for metric_name, score in self.scores.items():
                 writer.writerow([metric_name, 0.5, score])
 
+        # Save any results considering each CT scan as one instance and using
+        # the average probabilities and thresholds
         for threshold, results_per_scan in self.results_per_scan.items():
             filename = 'metrics_per_scan_threshold_{:03.0f}.csv'.format(
                 threshold*100)
@@ -95,6 +98,18 @@ class Results(object):
                 writer.writerow(['metric', 'threshold', 'score'])
                 for metric, score in results_per_scan.items():
                     writer.writerow([metric, threshold, score])
+
+        # Save any results considering each CT scan as one instance and using
+        # the proportions of slices with probability higher than 0.5
+        for proportion, results_per_scan in self.results_per_scan_proportion.items():
+            filename = 'metrics_per_scan_proportion_{:03.0f}.csv'.format(
+                proportion*100)
+            with open(os.path.join(self.path, filename), 'a') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',', quotechar='|',
+                                    quoting=csv.QUOTE_NONNUMERIC)
+                writer.writerow(['metric', 'proportion', 'score'])
+                for metric, score in results_per_scan.items():
+                    writer.writerow([metric, proportion, score])
 
 
     def load(self):
@@ -111,10 +126,11 @@ class Results(object):
         '''
         Computes all metrics considering each ct-scan as an instance
 
-        threshold: float or None
-            None: Majority voting using each slice
-            Float: Proportion of slices that need to be positive to have the
-            ct-scan predicted as positive
+        threshold: float
+            The outputs of all slices of each scan are averaged, and the
+            prediction is considered positive if the output is higher than the
+            specified threshold for metrics that require a threshold. Methods
+            that do not require threshold are not affected by this parameter.
         '''
         df = pd.DataFrame(self.results, columns=COLUMN_NAMES)
         df = df.pivot_table(index=['subj_id', 'ct_id'],
@@ -133,6 +149,31 @@ class Results(object):
                 print(e)
             self.results_per_scan[threshold][metric_name] = score
 
+    def compute_metrics_per_scan_proportion(self, proportion=0.5):
+        '''
+        Computes all metrics considering each ct-scan as an instance
+
+        proportion: float
+            Float: Proportion of slices that need to be positive to have the
+            ct-scan predicted as positive. default corresponds to majority
+            voting, given that half of the slides need to be positive, or
+            negative.
+        '''
+        df = pd.DataFrame(self.results, columns=COLUMN_NAMES)
+        df['output'] = (df['output'] >= 0.5).astype(float)
+        df = df.pivot_table(index=['subj_id', 'ct_id'],
+                            values=['output', 'target'],
+                            aggfunc='mean')
+        outputs = (df['output'] >= proportion).astype(float)
+        target = df['target']
+
+        self.results_per_scan_proportion[proportion] = {}
+        for metric_name, metric_func in METRICS_MAP.items():
+            try:
+                score = metric_func(target, outputs)
+            except ValueError as e:
+                print(e)
+            self.results_per_scan_proportion[proportion][metric_name] = score
 
 if __name__ == '__main__':
     res = Results(path='results')
@@ -145,9 +186,12 @@ if __name__ == '__main__':
     res.add(.6, 1, 'Alice', 2, 2)
     res.save(overwrite=True)
 
-    res = Results(path='results')
+    res = Results(path='example')
     res.load()
-    res.compute_metrics_per_scan(threshold=0.5)
+    res.compute_metrics_per_scan()
     res.compute_metrics_per_scan(threshold=0.7)
     res.compute_metrics_per_scan(threshold=0.9)
+    res.compute_metrics_per_scan_proportion(proportion=0.1)
+    res.compute_metrics_per_scan_proportion(proportion=0.3)
+    res.compute_metrics_per_scan_proportion()
     res.save(overwrite=True)
