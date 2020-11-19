@@ -122,7 +122,7 @@ class Results(object):
             for row in reader:
                 self.results.append(row)
 
-    def compute_metrics_per_scan(self, threshold=0.5):
+    def compute_metrics_per_scan_threhsold(self, threshold=0.5):
         '''
         Computes all metrics considering each ct-scan as an instance
 
@@ -188,9 +188,9 @@ if __name__ == '__main__':
 
     res = Results(path='example')
     res.load()
-    res.compute_metrics_per_scan()
-    res.compute_metrics_per_scan(threshold=0.7)
-    res.compute_metrics_per_scan(threshold=0.9)
+    res.compute_metrics_per_scan_threhsold()
+    res.compute_metrics_per_scan_threhsold(threshold=0.7)
+    res.compute_metrics_per_scan_threhsold(threshold=0.9)
     res.compute_metrics_per_scan_proportion(proportion=0.1)
     res.compute_metrics_per_scan_proportion(proportion=0.3)
     res.compute_metrics_per_scan_proportion()
