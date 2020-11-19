@@ -43,7 +43,7 @@ class ConfigParser:
         write_json(self.config, self.save_dir / 'config.json')
 
         # configure logging module
-        setup_logging(self.log_dir)
+        setup_logging(self.log_dir, log_config=self.config['log_config'])
         self.log_levels = {
             0: logging.WARNING,
             1: logging.INFO,

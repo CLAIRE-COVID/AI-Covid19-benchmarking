@@ -23,7 +23,7 @@ models:
       file: environment/slurm/cineca_template.jinja2
       hostname: login.m100.cineca.it
       sshKey: /home/glassofwhiskey/.ssh/keys/marconi100_rsa
-      sshKeyPassphrase: hv3w4etj!!
+      sshKeyPassphrase: ******
       username: icolonne
   slurm-cineca:
     type: slurm

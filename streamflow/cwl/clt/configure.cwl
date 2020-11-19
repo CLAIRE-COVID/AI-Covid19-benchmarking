@@ -57,7 +57,3 @@ outputs:
     type: File
     outputBinding:
       glob: "training_*.json"
-  experiment_name:
-    type: string
-    outputBinding:
-      outputEval: '$(inputs.model_type)$(inputs.model_layers)_lr$(inputs.learning_rate)_step$(inputs.lr_step_size)_wd$(inputs.weight_decay)_epochs$(inputs.epochs)'
