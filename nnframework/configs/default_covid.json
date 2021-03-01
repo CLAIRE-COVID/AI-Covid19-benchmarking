@@ -5,9 +5,9 @@
   "log_config": "./my_logger_config.json",
 
   "arch": {
-    "type": "ResNeXtModel",
+    "type": "DenseNetModel",
     "args": {
-      "variant": 101,
+      "variant": 121,
       "num_classes" : 2,
       "print_model": true
     }

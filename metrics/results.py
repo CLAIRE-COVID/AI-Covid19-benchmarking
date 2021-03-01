@@ -1,7 +1,7 @@
 import os
 import shutil
 import csv
-from metrics import (accuracy, f1, log_loss, precision,
+from metrics.metrics import (accuracy, f1, log_loss, precision,
                      recall, auprgc_score, roc_auc_score,
                      sensitivity, specificity, odds_ratio)
 import numpy as np
@@ -122,7 +122,7 @@ class Results(object):
             for row in reader:
                 self.results.append(row)
 
-    def compute_metrics_per_scan_threhsold(self, threshold=0.5):
+    def compute_metrics_per_scan_threshold(self, threshold=0.5):
         '''
         Computes all metrics considering each ct-scan as an instance
 
@@ -176,22 +176,42 @@ class Results(object):
             self.results_per_scan_proportion[proportion][metric_name] = score
 
 if __name__ == '__main__':
-    res = Results(path='results')
-    res.add(.9, 1, 'John', 1, 23)
-    res.add(.3, 1, 'John', 2, 23)
-    res.add(.4, 1, 'John', 2, 24)
-    res.add(.1, 0, 'Alice', 1, 1)
-    res.add(.2, 0, 'Alice', 1, 2)
-    res.add(.5, 1, 'Alice', 2, 1)
-    res.add(.6, 1, 'Alice', 2, 2)
-    res.save(overwrite=True)
+    #res = Results(path='results')
+    #res.add(.9, 1, 'John', 1, 23)
+    #res.add(.3, 1, 'John', 2, 23)
+    #res.add(.4, 1, 'John', 2, 24)
+    #res.add(.1, 0, 'Alice', 1, 1)
+    #res.add(.2, 0, 'Alice', 1, 2)
+    #res.add(.5, 1, 'Alice', 2, 1)
+    #res.add(.6, 1, 'Alice', 2, 2)
+    #res.save(overwrite=True)
+    from tqdm import tqdm
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    import sys
 
-    res = Results(path='example')
+    res = Results(path=sys.argv[1])
     res.load()
-    res.compute_metrics_per_scan_threhsold()
-    res.compute_metrics_per_scan_threhsold(threshold=0.7)
-    res.compute_metrics_per_scan_threhsold(threshold=0.9)
-    res.compute_metrics_per_scan_proportion(proportion=0.1)
-    res.compute_metrics_per_scan_proportion(proportion=0.3)
-    res.compute_metrics_per_scan_proportion()
+    #res.compute_metrics_per_scan_threshold()
+    #res.compute_metrics_per_scan_threshold(threshold=0.7)
+    #res.compute_metrics_per_scan_threshold(threshold=0.9)
+    for p in tqdm(range(0,102)):
+        res.compute_metrics_per_scan_proportion(proportion=p/100)
     res.save(overwrite=True)
+    #np.save('test_results.npy', res.results_per_scan_proportion)
+    data = res.results_per_scan_proportion
+    sens = []
+    spec = []
+    for k in sorted(data.keys()):
+        sens.append(res.results_per_scan_proportion[k]['sensitivity'])
+        spec.append(res.results_per_scan_proportion[k]['specificity'])
+    sens = np.array(sens)
+    spec = np.array(spec)
+    print(sens)
+    print(spec)
+    plt.title('ROC curve')
+    plt.xlabel('FPR')
+    plt.ylabel('TPR')
+    plt.plot(sens, 1-spec)
+    plt.savefig(os.path.join(res.path, 'roc.png'))
