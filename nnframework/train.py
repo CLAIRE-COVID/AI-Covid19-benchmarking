@@ -31,7 +31,8 @@ def main(config):
     model = config.init_obj('arch', module_model)
     logger.info(model)
 
-    criterion = getattr(module_loss, config['loss'])
+    #FIXME: loss pesata, da cambiare per renderlo modulare. Cambiare device!
+    criterion = torch.nn.CrossEntropyLoss(weight= data_loader.get_label_proportions().to('cuda'))
     metrics = [getattr(module_metric, met) for met in config['metrics']]
 
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())

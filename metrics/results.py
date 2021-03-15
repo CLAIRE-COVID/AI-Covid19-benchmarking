@@ -213,5 +213,5 @@ if __name__ == '__main__':
     plt.title('ROC curve')
     plt.xlabel('FPR')
     plt.ylabel('TPR')
-    plt.plot(sens, 1-spec)
+    plt.plot(1-spec, sens)
     plt.savefig(os.path.join(res.path, 'roc.png'))

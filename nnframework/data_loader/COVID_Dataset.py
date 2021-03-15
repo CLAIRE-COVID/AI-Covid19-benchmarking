@@ -103,6 +103,11 @@ class COVID_Dataset():
                     except:
                         continue
 
+                    # skip subjects with uncertain label
+                    if self.uncertain in lab[0]:
+                        print('{}-{} is uncertain: skipped'.format(subj,run))
+                        continue
+                    
                     files_old.extend(files)
 
                     label = (0 if self.covid not in lab[0] else 1)
@@ -147,6 +152,7 @@ class COVID_Dataset():
         self.ground_glass = "C3544344"
         self.consolidation = "C0521530"
         self.covid = "C5203670"
+        self.uncertain = "C5203671"
         self.replicate_channel = replicate_channel
         
         self.has_val = (len(splits) == 3 and splits[1] != 0)
@@ -229,6 +235,18 @@ class COVID_Dataset():
         self.test = COVID_Split(self.test_files,self.test_labels,self.test_sublabels,test_transform, replicate_channel=self.replicate_channel, self_supervised=self_supervised)         
         
         # Loader instances
-        self.train = DataLoader(self.train, batch_size=batch_size, num_workers=num_workers)
+        self.train = DataLoader(self.train, batch_size=batch_size, num_workers=num_workers,shuffle=True)
         self.val = DataLoader(self.val, batch_size=batch_size, num_workers=num_workers)
         self.test = DataLoader(self.test, batch_size=batch_size, num_workers=num_workers)
+
+    def get_label_proportions(self, n_classes=2):
+        labs = []
+        m = 0
+        for i in range(n_classes):
+            c = self.train_labels.count(i)
+            if c > m:
+                m = c
+            labs.append(c)
+        for i in range(n_classes):
+            labs[i] = 1/(labs[i] / m)
+        return torch.Tensor(labs)
