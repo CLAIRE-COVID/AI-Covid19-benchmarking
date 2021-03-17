@@ -8,7 +8,7 @@
     "type": "DenseNetModel",
     "args": {
       "variant": 121,
-      "num_classes" : 2,
+      "num_classes" : 4,
       "print_model": true
     }
   },
@@ -24,9 +24,8 @@
       "pos_neg_file": "labels_covid19_posi.tsv",
       "splits": [0.7, 0.15, 0.15],
       "replicate_channel": 1,
+      "self_supervised":1,
       "batch_size": 64,
-      "self_supervised":0,
-      "random_seed":123,
       "input_size": 224,
       "num_workers": 2
     }

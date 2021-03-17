@@ -30,9 +30,11 @@ def main(config):
     torch.hub.set_dir(config['weights_path'])
     model = config.init_obj('arch', module_model)
     logger.info(model)
-
-    #FIXME: loss pesata, da cambiare per renderlo modulare. Cambiare device!
-    criterion = torch.nn.CrossEntropyLoss(weight= data_loader.get_label_proportions().to('cuda'))
+    # FIXME: refactor needed
+    if config['data_loader']['args']['self_supervised']:
+        criterion = torch.nn.CrossEntropyLoss()
+    else:
+        criterion = torch.nn.CrossEntropyLoss(weight=data_loader.get_label_proportions().to('cuda'))
     metrics = [getattr(module_metric, met) for met in config['metrics']]
 
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
