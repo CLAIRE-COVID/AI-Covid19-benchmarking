@@ -4,7 +4,7 @@ __email__ = "liviu_daniel.stefan@upb.ro, cmihaigabriel@gmail.com"
 import torch
 from abc import abstractmethod
 from numpy import inf
-from logger import TensorboardWriter
+from nnframework.logger import TensorboardWriter
 
 
 class BaseTrainer:

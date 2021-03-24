@@ -1,7 +1,7 @@
 __copyright__ = "Copyright 2020, UPB-CAMPUS Research Center - Multimedia Lab"
 __email__ = "liviu_daniel.stefan@upb.ro, cmihaigabriel@gmail.com"
 
-from base import BaseModel
+from nnframework.base import BaseModel
 from torchvision import models
 import torch.nn as nn
 

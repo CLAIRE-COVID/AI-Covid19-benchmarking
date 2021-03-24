@@ -4,6 +4,9 @@ cifar-10-batches-py
 exps
 .vscode
 .ipynb_checkpoints
-
+data/
+interp_output/
+weights/
+*.pth
 # Singularity
 *.sif

@@ -1,7 +1,7 @@
 __copyright__ = "Copyright 2020, UPB-CAMPUS Research Center - Multimedia Lab"
 __email__ = "liviu_daniel.stefan@upb.ro, cmihaigabriel@gmail.com"
 
-from base import BaseDataLoader
+from nnframework.base import BaseDataLoader
 from torchvision import transforms, datasets
 
 
