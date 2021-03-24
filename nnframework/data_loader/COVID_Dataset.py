@@ -43,7 +43,7 @@ class COVID_Split(Dataset):
             self.slice_ids.append(int(parts[-1].split('.')[0]))
      
         if transform == None:
-            self.transform = transforms.ToTensor()
+            self.transform = T.ToTensor()
         else:    
             self.transform = transform
         
@@ -147,7 +147,7 @@ class COVID_Dataset():
         #root: the path to the generated dataset 
         #pos_neg_file: the absolute path to the file labels_covid19_posi.tsv
     
-    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False):
+    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False,test_patients = None):
         
         self.ground_glass = "C3544344"
         self.consolidation = "C0521530"
@@ -158,11 +158,7 @@ class COVID_Dataset():
         self.has_val = (len(splits) == 3 and splits[1] != 0)
         self.subjects = os.listdir(root)
         
-        if random_seed == None:
-            random.shuffle(self.subjects)
-        else:
-            random.seed(random_seed)
-            random.shuffle(self.subjects)
+
             
         self.labels = {}
         
@@ -182,18 +178,97 @@ class COVID_Dataset():
                 
                 self.labels[row[1]][row[2]].append(row[7].replace("[","").replace("]","").split("\t"))
                 
-        tot_cnt = len(self.subjects)
         
+        positive_subjs = []
+        negative_subjs = []
         self.splits = {}
-        self.splits["train"] = self.subjects[0:int(splits[0]*tot_cnt)]
         
-        
-        if self.has_val == False:
-            self.splits["test"] = self.subjects[len(self.splits["train"]):]
+        if test_patients is not None:
+            self.subjects = list( set(self.subjects) - set(test_patients))
+            
+
+        for subj in self.subjects:
+            runs = os.listdir(os.path.join(root,subj))
+            for run in runs:
+                run_root = os.path.join(root,subj,run)
+                if os.path.isdir(run_root):
+                    files = glob.glob(os.path.join(run_root,"*.png"))
+
+                    if len(files)>0:
+                        x = re.findall("ses-E[0][0-9][0-9][0-9][0-9]", files[0])
+                        session = x[0]
+                    else:
+                        continue
+
+                    try:
+                        lab = self.labels[subj][session]
+
+                    except:
+                        continue
+
+                    # skip subjects with uncertain label
+                    if self.uncertain in lab[0]:
+                        print('{}-{} is uncertain: skipped'.format(subj,run))
+                        continue
+                    
+
+                    label = (0 if self.covid not in lab[0] else 1)
+                    print('{}: {}'.format(subj,label))
+                    if label ==1:
+                        positive_subjs.append(subj)
+                    else:
+                        negative_subjs.append(subj)
+                    break
+
+
+        tot_cnt = len(positive_subjs) + len(negative_subjs)
+        pos_cnt = len(positive_subjs)
+        neg_cnt = len(negative_subjs)
+        if random_seed == None:
+            random.shuffle(positive_subjs)
+            random.shuffle(negative_subjs)
         else:
-            self.splits["val"] = self.subjects[len(self.splits["train"]):int((splits[0]+splits[1])*tot_cnt)]
-            self.splits["test"] = self.subjects[len(self.splits["val"])+len(self.splits["train"]):]
+            random.seed(random_seed)
+            random.shuffle(positive_subjs)
+            random.shuffle(negative_subjs)
+
         
+
+ 
+
+        n_neg_test = int(0.20*neg_cnt)
+        n_pos_test = n_neg_test
+        n_neg_val = int(0.10*neg_cnt)
+        n_pos_val = n_neg_val
+
+        pos_test = positive_subjs[0:n_pos_test]
+        neg_test = negative_subjs[0:n_neg_test]
+
+        pos_val = positive_subjs[n_pos_test: n_pos_test+n_pos_val]
+        neg_val = negative_subjs[n_neg_test: n_neg_test+n_neg_val]
+
+        pos_train = positive_subjs[n_pos_test+n_pos_val:]
+        neg_train = negative_subjs[n_neg_test+n_neg_val:]
+
+        if test_patients is not None:
+            self.splits["train"] = pos_train + neg_train + pos_test + neg_test
+            self.splits["val"] = pos_val + neg_val
+            self.splits['test'] = list(set(test_patients))
+        else:
+                
+            self.splits["train"] = pos_train + neg_train
+            self.splits["val"] = pos_val + neg_val
+            self.splits["test"] = pos_test+neg_test
+
+        # assert patients belong just to one split
+        set_test = set(self.splits['test'])
+        set_train = set(self.splits['train'])
+        set_val = set(self.splits['val'])
+        assert len(set_train.intersection(set_test)) == 0, 'Subjects of training set are present in Test set'
+        assert len(set_train.intersection(set_val)) == 0, 'Subjects of training set are present in Validation set'
+        assert len(set_val.intersection(set_test)) == 0, 'Subjects of validation set are present in Test set'
+
+
         self.train_files = []
         self.test_files = []
         self.val_files = None

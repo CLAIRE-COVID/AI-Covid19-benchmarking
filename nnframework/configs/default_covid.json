@@ -19,9 +19,9 @@
   "data_loader": {
     "type": "COVID_Dataset",
     "args": {
-      "root": "final3_masked/",
+      "root": "data/final3_BB",
       "mode": "ct",
-      "pos_neg_file": "labels_covid19_posi.tsv",
+      "pos_neg_file": "data/labels_covid19_posi.tsv",
       "splits": [0.7, 0.15, 0.15],
       "replicate_channel": 1,
       "batch_size": 64,
