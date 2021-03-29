@@ -1,0 +1,62 @@
+{
+  "name": "prova_cross",
+  "n_gpu": 1,
+  "weights_path": "./weights",
+  "log_config": "./my_logger_config.json",
+
+  "arch": {
+    "type": "DenseNetModel",
+    "args": {
+      "variant": 121,
+      "num_classes" : 2,
+      "print_model": true
+    }
+  },
+
+  "loss": "cross_entropy_loss",
+  "metrics": ["accuracy"],
+
+  "data_loader": {
+    "type": "COVID_Dataset",
+    "args": {
+      "root": "data/final3_BB",
+      "k_fold_idx":4,
+      "mode": "ct",
+      "pos_neg_file": "data/labels_covid19_posi.tsv",
+      "splits": [0.7, 0.15, 0.15],
+      "replicate_channel": 1,
+      "batch_size": 64,
+      "self_supervised":0,
+      "random_seed":123,
+      "input_size": 224,
+      "num_workers": 2
+    }
+  },
+
+  "optimizer": {
+    "type": "Adam",
+    "args":{
+      "lr": 0.00001,
+      "weight_decay": 0,
+      "amsgrad": true
+    }
+  },
+
+  "lr_scheduler": {
+    "type": "StepLR",
+    "args": {
+      "step_size": 5,
+      "gamma": 0.1
+    }
+  },
+
+  "trainer": {
+    "epochs": 50,
+    "save_dir": "saved/",
+    "save_period": 1,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 10,
+    "tensorboard": false
+  }
+}

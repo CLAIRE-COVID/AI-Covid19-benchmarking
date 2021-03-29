@@ -147,7 +147,7 @@ class COVID_Dataset():
         #root: the path to the generated dataset 
         #pos_neg_file: the absolute path to the file labels_covid19_posi.tsv
     
-    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False,test_patients = None):
+    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False,test_patients = None,k_folds=5,k_fold_idx=0):
         
         self.ground_glass = "C3544344"
         self.consolidation = "C0521530"
@@ -157,8 +157,9 @@ class COVID_Dataset():
         
         self.has_val = (len(splits) == 3 and splits[1] != 0)
         self.subjects = os.listdir(root)
+        self.subjects.sort()
         
-
+        print("FOLD IDX:{}".format(k_fold_idx))
             
         self.labels = {}
         
@@ -182,7 +183,7 @@ class COVID_Dataset():
         positive_subjs = []
         negative_subjs = []
         self.splits = {}
-        
+
         if test_patients is not None:
             self.subjects = list( set(self.subjects) - set(test_patients))
             
@@ -213,7 +214,7 @@ class COVID_Dataset():
                     
 
                     label = (0 if self.covid not in lab[0] else 1)
-                    print('{}: {}'.format(subj,label))
+
                     if label ==1:
                         positive_subjs.append(subj)
                     else:
@@ -224,6 +225,8 @@ class COVID_Dataset():
         tot_cnt = len(positive_subjs) + len(negative_subjs)
         pos_cnt = len(positive_subjs)
         neg_cnt = len(negative_subjs)
+
+        # shuffle patients
         if random_seed == None:
             random.shuffle(positive_subjs)
             random.shuffle(negative_subjs)
@@ -231,10 +234,62 @@ class COVID_Dataset():
             random.seed(random_seed)
             random.shuffle(positive_subjs)
             random.shuffle(negative_subjs)
+        
+        # split into k folds
+        k_splits_pos = np.array_split(positive_subjs, k_folds)
+        k_splits_neg = np.array_split(negative_subjs, k_folds)
+
+        # test
+        test_positive_fold = k_splits_pos[k_fold_idx].tolist()
+        test_negative_fold = k_splits_neg[k_fold_idx].tolist()
+
+        
+        if len(test_positive_fold) > len(test_negative_fold):
+            test_positive = test_positive_fold[:len(test_negative_fold)]
+            remaining_test_split = test_positive_fold[len(test_negative_fold):]
+            test_negative = test_negative_fold
+        else:
+            test_negative= test_negative_fold[:len(test_positive_fold)]
+            remaining_test_split = test_negative_fold[len(test_positive_fold):]
+            test_positive = test_positive_fold
+
+
+        self.splits['test'] = test_positive + test_negative
+        
+        # validation
+        k_fold_val_idx = k_fold_idx+1 if k_fold_idx+1 < k_folds else 0
+        val_positive_fold = k_splits_pos[k_fold_val_idx].tolist()
+        val_negative_fold = k_splits_neg[k_fold_val_idx].tolist()
+
+        
+        if len(val_positive_fold) > len(val_negative_fold):
+            val_positive = val_positive_fold[:len(val_negative_fold)]
+            remaining_val_split = val_positive_fold[len(val_negative_fold):]
+            val_negative = val_negative_fold
+        else:
+            val_negative= val_negative_fold[:len(val_positive_fold)]
+            remaining_val_split = val_negative_fold[len(val_positive_fold):]
+            val_positive = val_positive_fold
+        
+        self.splits['val'] = val_positive + val_negative
+        k_splits_pos = np.delete(k_splits_pos,(k_fold_idx,k_fold_val_idx))
+        k_splits_neg = np.delete(k_splits_neg,(k_fold_idx,k_fold_val_idx))
+        
+
+
+
+        remaining_pos = np.concatenate(k_splits_pos).tolist()
+        remaining_neg = np.concatenate(k_splits_neg).tolist()
+        self.splits['train'] = remaining_pos + remaining_neg + remaining_test_split + remaining_val_split
+
+
+
+
+
 
         
 
- 
+        '''
 
         n_neg_test = int(0.20*neg_cnt)
         n_pos_test = n_neg_test
@@ -259,7 +314,7 @@ class COVID_Dataset():
             self.splits["train"] = pos_train + neg_train
             self.splits["val"] = pos_val + neg_val
             self.splits["test"] = pos_test+neg_test
-
+        '''
         # assert patients belong just to one split
         set_test = set(self.splits['test'])
         set_train = set(self.splits['train'])
@@ -267,6 +322,7 @@ class COVID_Dataset():
         assert len(set_train.intersection(set_test)) == 0, 'Subjects of training set are present in Test set'
         assert len(set_train.intersection(set_val)) == 0, 'Subjects of training set are present in Validation set'
         assert len(set_val.intersection(set_test)) == 0, 'Subjects of validation set are present in Test set'
+        assert len(self.splits['val']) + len(self.splits['test'])+ len(self.splits['train']) == tot_cnt, 'Something is missing'
 
 
         self.train_files = []

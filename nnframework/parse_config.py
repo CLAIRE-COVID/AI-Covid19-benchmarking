@@ -28,11 +28,9 @@ class ConfigParser:
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config['trainer']['save_dir'])
 
-        exper_name = self.config['name']
-        if run_id is None: # use timestamp as default run-id
-            run_id = datetime.now().strftime(r'%m%d_%H%M%S')
-        self._save_dir = save_dir / 'models' / exper_name / run_id
-        self._log_dir = save_dir / 'log' / exper_name / run_id
+        exper_name = datetime.now().strftime(r'%m%d_%H%M%S')+ '_'+ self.config['name'] + '_fold{}'.format( self.config['data_loader']['args']['k_fold_idx'])
+        self._save_dir = save_dir / 'models' / exper_name 
+        self._log_dir = save_dir / 'log' / exper_name 
 
         # make directory for saving checkpoints and log.
         exist_ok = run_id == ''
