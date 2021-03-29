@@ -60,7 +60,7 @@ class Results(object):
         if not os.path.exists(self.path):
             os.makedirs(self.path)
 
-        with open(os.path.join(self.path, 'predictions.csv'), 'a') as csvfile:
+        with open(os.path.join(self.path, 'predictions.csv'), 'a', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                 quoting=csv.QUOTE_NONNUMERIC)
             writer.writerows(self.results)
@@ -80,7 +80,7 @@ class Results(object):
                 print(e)
 
     def _save_metrics(self):
-        with open(os.path.join(self.path, 'metrics_per_slice.csv'), 'a') as csvfile:
+        with open(os.path.join(self.path, 'metrics_per_slice.csv'), 'a', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                 quoting=csv.QUOTE_NONNUMERIC)
             writer.writerow(['metric', 'threshold', 'score'])
@@ -92,7 +92,7 @@ class Results(object):
         for threshold, results_per_scan in self.results_per_scan.items():
             filename = 'metrics_per_scan_threshold_{:03.0f}.csv'.format(
                 threshold*100)
-            with open(os.path.join(self.path, filename), 'a') as csvfile:
+            with open(os.path.join(self.path, filename), 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                     quoting=csv.QUOTE_NONNUMERIC)
                 writer.writerow(['metric', 'threshold', 'score'])
@@ -104,7 +104,7 @@ class Results(object):
         for proportion, results_per_scan in self.results_per_scan_proportion.items():
             filename = 'metrics_per_scan_proportion_{:03.0f}.csv'.format(
                 proportion*100)
-            with open(os.path.join(self.path, filename), 'a') as csvfile:
+            with open(os.path.join(self.path, filename), 'a', newline='') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                     quoting=csv.QUOTE_NONNUMERIC)
                 writer.writerow(['metric', 'proportion', 'score'])
