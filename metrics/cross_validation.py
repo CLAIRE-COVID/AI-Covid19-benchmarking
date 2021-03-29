@@ -80,14 +80,14 @@ def main():
         cross_val_dest = os.path.join( args.dest_folder, args.experiment_name, 'test_predictions',k)
         if not os.path.exists(os.path.dirname(cross_val_dest)):
             os.makedirs(os.path.dirname(cross_val_dest))
-        with open(os.path.join(cross_val_dest), 'a', newline='') as csvfile:
+        with open(os.path.join(cross_val_dest), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                 quoting=csv.QUOTE_NONNUMERIC)
             for key, value in mean_res_scan_propritions[k].items():
                 writer.writerow([key, value])
 
     slice_metrics_dest = os.path.join( args.dest_folder, args.experiment_name, 'test_predictions','metrics_per_slice.csv')
-    with open(os.path.join(slice_metrics_dest), 'a', newline='') as csvfile:
+    with open(os.path.join(slice_metrics_dest), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                 quoting=csv.QUOTE_NONNUMERIC)
             for key, value in mean_slice_metrics.items():
