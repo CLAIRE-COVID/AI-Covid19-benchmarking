@@ -7,7 +7,7 @@ import os
 assert len(sys.argv) > 1, "Usage: python init_models.py <model dir>"
 # Set hub dir
 os.makedirs(sys.argv[1], exist_ok=True)
-#torch.hub.set_dir(sys.argv[1])
+torch.hub.set_dir(sys.argv[1])
 # Load models
 print("Loading models, please wait")
 model = models.densenet121(pretrained=True)
