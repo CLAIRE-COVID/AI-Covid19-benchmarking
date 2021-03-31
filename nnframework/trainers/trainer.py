@@ -120,7 +120,7 @@ class Trainer(BaseTrainer):
         :param epoch: Integer, current training epoch.
         :return: A log that contains information about test
         """
-        test_results_path = self.config.save_dir / 'test_predictions'
+        test_results_path = self.config.results_dir
         test_results = TestResults(test_results_path)
         self.model.eval()
         self.test_metrics.reset()

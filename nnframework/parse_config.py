@@ -30,12 +30,14 @@ class ConfigParser:
 
         exper_name = datetime.now().strftime(r'%m%d_%H%M%S')+ '_'+ self.config['name'] + '_fold{}'.format( self.config['data_loader']['args']['k_fold_idx'])
         self._save_dir = save_dir / 'models' / exper_name 
-        self._log_dir = save_dir / 'log' / exper_name 
+        self._log_dir = save_dir / 'log' / exper_name
+        self._results_dir = save_dir / 'results' / exper_name 
 
         # make directory for saving checkpoints and log.
         exist_ok = run_id == ''
         self.save_dir.mkdir(parents=True, exist_ok=exist_ok)
         self.log_dir.mkdir(parents=True, exist_ok=exist_ok)
+        self.results_dir.mkdir(parents=True, exist_ok=exist_ok)
 
         # save updated config file to the checkpoint dir
         write_json(self.config, self.save_dir / 'config.json')
@@ -131,6 +133,10 @@ class ConfigParser:
     @property
     def log_dir(self):
         return self._log_dir
+
+    @property
+    def results_dir(self):
+        return self._results_dir
 
 # helper functions to update config dict with custom cli options
 def _update_config(config, modification):

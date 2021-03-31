@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--experiment_name', type=str)
     parser.add_argument('--k_folds', type=int, default=5)
-    parser.add_argument('--results_root',type=str,default='saved/models')
+    parser.add_argument('--results_root',type=str,default='saved/results')
     parser.add_argument('--dest_folder',type=str,default='saved/cross_val')
     args = parser.parse_args()
     print(os.getcwd())
@@ -30,7 +30,7 @@ def main():
     print(folds_paths)
     slice_metrics = {}
     for fold_path in folds_paths:
-        with open(os.path.join( fold_path,'test_predictions','metrics_per_slice.csv'), 'r') as csvfile:
+        with open(os.path.join( fold_path,'metrics_per_slice.csv'), 'r') as csvfile:
             reader = csv.reader(csvfile, delimiter=',', quotechar='|',
                                 quoting=csv.QUOTE_NONNUMERIC)
             next(reader, None) # skip header
@@ -55,7 +55,7 @@ def main():
     res_scan_propritions = {k:{} for k in metrics_per_scan_names}
     for fold_path in folds_paths:
         for metrics_scan_name in metrics_per_scan_names:
-            with open(os.path.join( fold_path,'test_predictions',metrics_scan_name), 'r') as csvfile:
+            with open(os.path.join( fold_path,metrics_scan_name), 'r') as csvfile:
                 reader = csv.reader(csvfile, delimiter=',', quotechar='|',
                                     quoting=csv.QUOTE_NONNUMERIC)
                 next(reader, None) # skip header
@@ -77,7 +77,7 @@ def main():
 
 
     for k,v in mean_res_scan_propritions.items():
-        cross_val_dest = os.path.join( args.dest_folder, args.experiment_name, 'test_predictions',k)
+        cross_val_dest = os.path.join( args.dest_folder, args.experiment_name,k)
         if not os.path.exists(os.path.dirname(cross_val_dest)):
             os.makedirs(os.path.dirname(cross_val_dest))
         with open(os.path.join(cross_val_dest), 'w', newline='') as csvfile:
@@ -86,7 +86,7 @@ def main():
             for key, value in mean_res_scan_propritions[k].items():
                 writer.writerow([key, value])
 
-    slice_metrics_dest = os.path.join( args.dest_folder, args.experiment_name, 'test_predictions','metrics_per_slice.csv')
+    slice_metrics_dest = os.path.join( args.dest_folder, args.experiment_name,'metrics_per_slice.csv')
     with open(os.path.join(slice_metrics_dest), 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=',', quotechar='|',
                                 quoting=csv.QUOTE_NONNUMERIC)
@@ -107,7 +107,7 @@ def main():
     plt.xlabel('FPR')
     plt.ylabel('TPR')
     plt.plot(1-spec, sens)
-    plt.savefig(os.path.join( args.dest_folder, args.experiment_name, 'test_predictions','roc.png'))
+    plt.savefig(os.path.join( args.dest_folder, args.experiment_name,'roc.png'))
         
 
 

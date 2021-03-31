@@ -147,7 +147,7 @@ class COVID_Dataset():
         #root: the path to the generated dataset 
         #pos_neg_file: the absolute path to the file labels_covid19_posi.tsv
     
-    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False,test_patients = None,k_folds=5,k_fold_idx=0):
+    def __init__(self, root, mode = "xray", plane = "axial", splits = [0.6,0.2,0.2], replicate_channel=False, batch_size=2, input_size=224, num_workers=2, pos_neg_file = None, random_seed = None, self_supervised=False,k_folds=5,k_fold_idx=0):
         
         self.ground_glass = "C3544344"
         self.consolidation = "C0521530"
@@ -184,8 +184,6 @@ class COVID_Dataset():
         negative_subjs = []
         self.splits = {}
 
-        if test_patients is not None:
-            self.subjects = list( set(self.subjects) - set(test_patients))
             
 
         for subj in self.subjects:
@@ -284,37 +282,6 @@ class COVID_Dataset():
 
 
 
-
-
-
-        
-
-        '''
-
-        n_neg_test = int(0.20*neg_cnt)
-        n_pos_test = n_neg_test
-        n_neg_val = int(0.10*neg_cnt)
-        n_pos_val = n_neg_val
-
-        pos_test = positive_subjs[0:n_pos_test]
-        neg_test = negative_subjs[0:n_neg_test]
-
-        pos_val = positive_subjs[n_pos_test: n_pos_test+n_pos_val]
-        neg_val = negative_subjs[n_neg_test: n_neg_test+n_neg_val]
-
-        pos_train = positive_subjs[n_pos_test+n_pos_val:]
-        neg_train = negative_subjs[n_neg_test+n_neg_val:]
-
-        if test_patients is not None:
-            self.splits["train"] = pos_train + neg_train + pos_test + neg_test
-            self.splits["val"] = pos_val + neg_val
-            self.splits['test'] = list(set(test_patients))
-        else:
-                
-            self.splits["train"] = pos_train + neg_train
-            self.splits["val"] = pos_val + neg_val
-            self.splits["test"] = pos_test+neg_test
-        '''
         # assert patients belong just to one split
         set_test = set(self.splits['test'])
         set_train = set(self.splits['train'])
