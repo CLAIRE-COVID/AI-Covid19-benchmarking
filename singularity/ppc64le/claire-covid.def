@@ -1,0 +1,20 @@
+Bootstrap: localimage
+From: /container/icolonne/claire-covid/benchmarking/singularity/ppc64le/pytorch.sif
+Stage: final
+
+
+%files
+    interpretability/       /opt/claire-covid/
+    nnframework/    		/opt/claire-covid/
+    metrics/        		/opt/claire-covid/
+
+%environment
+    export PYTHONPATH="${PYTHONPATH}:/opt/claire-covid"
+
+%labels
+    org.label-schema.name       "CLAIRE COVID19 DNN Benchmark"
+    org.label-schema.vcs-url    "https://github.com/CLAIRE-COVID/AI-Covid19-benchmarking"
+
+%help
+    Container for CLAIRE benchmarking of Deep Neural Network models for COVID19 diagnosis (https://github.com/CLAIRE-COVID/AI-Covid19-benchmarking)
+

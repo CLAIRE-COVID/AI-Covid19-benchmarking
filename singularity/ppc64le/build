@@ -1,0 +1,8 @@
+#!/bin/bash
+SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+export SINGULARITY_TMPDIR="/container/icolonne/claire-covid/singularity/tmp"
+export SINGULARITY_CACHEDIR="/container/icolonne/claire-covid/singularity/tmp"
+
+module load singularity
+cd "${SCRIPT_DIRECTORY}/../.." && singularity build --fakeroot singularity/ppc64le/claire-covid.sif singularity/ppc64le/claire-covid.def

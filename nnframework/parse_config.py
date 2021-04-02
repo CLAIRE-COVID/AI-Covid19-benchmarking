@@ -1,12 +1,13 @@
 __copyright__ = "Copyright 2020, UPB-CAMPUS Research Center - Multimedia Lab"
 __email__ = "liviu_daniel.stefan@upb.ro, cmihaigabriel@gmail.com"
 
-import os
 import logging
-from pathlib import Path
+import os
+from datetime import datetime
 from functools import reduce, partial
 from operator import getitem
-from datetime import datetime
+from pathlib import Path
+
 from nnframework.logger import setup_logging
 from nnframework.utils import read_json, write_json
 
@@ -28,10 +29,11 @@ class ConfigParser:
         # set save_dir where trained model and log will be saved.
         save_dir = Path(self.config['trainer']['save_dir'])
 
-        exper_name = datetime.now().strftime(r'%m%d_%H%M%S')+ '_'+ self.config['name'] + '_fold{}'.format( self.config['data_loader']['args']['k_fold_idx'])
-        self._save_dir = save_dir / 'models' / exper_name 
+        exper_name = datetime.now().strftime(r'%m%d_%H%M%S') + '_' + self.config['name'] + '_fold{}'.format(
+            self.config['data_loader']['args']['k_fold_idx'])
+        self._save_dir = save_dir / 'models' / exper_name
         self._log_dir = save_dir / 'log' / exper_name
-        self._results_dir = save_dir / 'results' / exper_name 
+        self._results_dir = save_dir / 'results' / exper_name
 
         # make directory for saving checkpoints and log.
         exist_ok = run_id == ''
@@ -43,7 +45,9 @@ class ConfigParser:
         write_json(self.config, self.save_dir / 'config.json')
 
         # configure logging module
-        setup_logging(self.log_dir, log_config=self.config['log_config'])
+        setup_logging(self.log_dir, log_config=self.config.get(
+            'log_config',
+            os.path.join(os.path.dirname(__file__), 'logger', 'logger_config.json')))
         self.log_levels = {
             0: logging.WARNING,
             1: logging.INFO,
@@ -70,14 +74,14 @@ class ConfigParser:
             assert args.config is not None, msg_no_cfg
             resume = None
             cfg_fname = Path(args.config)
-        
+
         config = read_json(cfg_fname)
         if args.config and resume:
             # update new config for fine-tuning
             config.update(read_json(args.config))
 
         # parse custom cli options into dictionary
-        modification = {opt.target : getattr(args, _get_opt_name(opt.flags)) for opt in options}
+        modification = {opt.target: getattr(args, _get_opt_name(opt.flags)) for opt in options}
         return cls(config, resume, modification)
 
     def init_obj(self, name, module, *args, **kwargs):
@@ -115,7 +119,8 @@ class ConfigParser:
         return self.config[name]
 
     def get_logger(self, name, verbosity=2):
-        msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(verbosity, self.log_levels.keys())
+        msg_verbosity = 'verbosity option {} is invalid. Valid options are {}.'.format(verbosity,
+                                                                                       self.log_levels.keys())
         assert verbosity in self.log_levels, msg_verbosity
         logger = logging.getLogger(name)
         logger.setLevel(self.log_levels[verbosity])
@@ -138,6 +143,7 @@ class ConfigParser:
     def results_dir(self):
         return self._results_dir
 
+
 # helper functions to update config dict with custom cli options
 def _update_config(config, modification):
     if modification is None:
@@ -148,16 +154,19 @@ def _update_config(config, modification):
             _set_by_path(config, k, v)
     return config
 
+
 def _get_opt_name(flags):
     for flg in flags:
         if flg.startswith('--'):
             return flg.replace('--', '')
     return flags[0].replace('--', '')
 
+
 def _set_by_path(tree, keys, value):
     """Set a value in a nested object in tree by sequence of keys."""
     keys = keys.split(';')
     _get_by_path(tree, keys[:-1])[keys[-1]] = value
+
 
 def _get_by_path(tree, keys):
     """Access a nested object in tree by sequence of keys."""

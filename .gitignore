@@ -10,3 +10,4 @@ weights/
 *.pth
 # Singularity
 *.sif
+.idea

@@ -1,4 +1,0 @@
-#!/bin/bash
-SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-cd "${SCRIPT_DIRECTORY}/.." && sudo singularity build singularity/claire-covid.sif singularity/claire-covid.def
