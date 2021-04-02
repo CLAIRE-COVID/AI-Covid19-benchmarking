@@ -24,7 +24,7 @@ def main():
 
     assert (len(results_folders) > 0), "Experiment not found"
     assert (len(
-        results_folders) == args.k_folds), "Nunber of experiments in folder ({}) did not match number of folds ({})".format(
+        results_folders) == args.k_folds), "Number of experiments in folder ({}) did not match number of folds ({})".format(
         len(results_folders), args.k_folds)
     folds_names = ['fold{}'.format(num) for num in range(args.k_folds)]
     assert all([any([fold in folder for folder in results_folders]) for fold in
