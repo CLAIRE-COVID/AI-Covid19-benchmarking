@@ -105,11 +105,11 @@ Stage: final
     apt-get update
     apt-get install -y --no-install-recommends  \
         ca-certificates                         \
-        libgomp1				\
+        libgomp1				                \
         libjpeg8                                \
-	libnuma1				\
+	libnuma1				                    \
         libopenblas-base                        \
-	openmpi-bin				\
+	openmpi-bin				                    \
         libpng16-16
     apt-get clean
     rm -rf /var/lib/apt/lists/*

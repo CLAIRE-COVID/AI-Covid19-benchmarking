@@ -2,11 +2,24 @@ Bootstrap: docker
 From: pytorch/pytorch:1.6.0-cuda10.1-cudnn7-runtime
 Stage: final
 
+%post
+    pip install --no-cache-dir                  \
+        kiwisolver==1.3.0                       \
+        matplotlib==3.3.2                       \
+        nibabel==3.2.0                          \
+        pandas==1.1.3                           \
+        pydicom==2.1.1                          \
+        pyprg==0.1.1b7                          \
+        pyyaml==5.3.1                           \
+        scikit-learn==0.23.2                    \
+        scipy==1.5.2                            \
+        tensorboard==2.3.0                      \
+        typing==3.7.4.3
 
 %files
-    interpretability/       /opt/claire-covid/
-    nnframework/    		/opt/claire-covid/
-    metrics/        		/opt/claire-covid/
+    interpretability/       	/opt/claire-covid/
+    nnframework/    		    /opt/claire-covid/
+    metrics/        		    /opt/claire-covid/
 
 %environment
     export PYTHONPATH="${PYTHONPATH}:/opt/claire-covid"
