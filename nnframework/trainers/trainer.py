@@ -5,8 +5,8 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision.utils import make_grid
-from base import BaseTrainer
-from utils import inf_loop, MetricTracker
+from nnframework.base import BaseTrainer
+from nnframework.utils import inf_loop, MetricTracker
 from metrics.results import Results as TestResults
 
 
