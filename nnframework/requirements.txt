@@ -27,7 +27,7 @@ six==1.15.0
 torchvision
 tensorboard==2.2.1
 tensorboard-plugin-wit==1.6.0.post3
-urllib3==1.25.9
+urllib3==1.26.5
 Werkzeug==1.0.1
 wheel==0.34.2
 zipp==3.1.0
