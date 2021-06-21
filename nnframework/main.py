@@ -52,7 +52,7 @@ def main(args):
                 'pos_neg_file': args.labels,
                 'splits': [0.7, 0.15, 0.15],
                 'replicate_channel': 1,
-                'batch_size': 64,
+                'batch_size': 32,
                 'input_size': 224,
                 'num_workers': 2,
                 'self_supervised': 0
